@@ -45,7 +45,16 @@ public class FirstFragment extends Fragment {
 //        textView.setText("Page " + imgURL);
 
         new DownloadImageTask(imgURL, img, textView, pb_horizontal).execute(imgURL);
+//        img.setMaxHeight(1000);
+//        img.setMaxWidth(1000);
 
+//        Log.d("Resolution", "image: " + img.getWidth() + " x " + img.getHeight());
+
+
+//        Matrix matrix = new Matrix();
+//        matrix.reset();
+//        matrix.setTranslate(MainActivity.screenWidth/2,MainActivity.screenHeight/2);
+//        img.setImageMatrix(matrix);
         img.setOnTouchListener(new ImageOnTouchListener());
 
         return view;

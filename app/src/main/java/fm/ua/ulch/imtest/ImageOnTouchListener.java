@@ -20,13 +20,17 @@ public class ImageOnTouchListener implements View.OnTouchListener {
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         ImageView view = (ImageView) v;
+
         System.out.println("matrix=" + savedMatrix.toString());
+
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
+
             case MotionEvent.ACTION_DOWN:
                 savedMatrix.set(matrix);
                 startPoint.set(event.getX(), event.getY());
                 mode = DRAG;
                 break;
+
             case MotionEvent.ACTION_POINTER_DOWN:
                 oldDist = spacing(event);
                 if (oldDist > 10f) {
@@ -35,10 +39,13 @@ public class ImageOnTouchListener implements View.OnTouchListener {
                     mode = ZOOM;
                 }
                 break;
+
             case MotionEvent.ACTION_UP:
+
             case MotionEvent.ACTION_POINTER_UP:
                 mode = NONE;
                 break;
+
             case MotionEvent.ACTION_MOVE:
                 if (mode == DRAG) {
                     matrix.set(savedMatrix);

@@ -2,7 +2,9 @@ package fm.ua.ulch.imtest;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -37,7 +39,28 @@ public class DownloadImageTask extends AsyncTask<String, Integer, Bitmap> {
 
     protected void onPostExecute(Bitmap result) {
         bmImage.setImageBitmap(result);
+        Log.d("Resolution", "image: " + result.getWidth() + " x " + result.getHeight());
         //        textView.setText(url);
+
+        int width = result.getWidth();
+        int height = result.getHeight();
+        float scaleWidth = ((float) MainActivity.screenWidth) / width;
+        float scaleHeight = ((float) MainActivity.screenHeight) / height;
+        Matrix matrix = new Matrix();
+//        matrix.reset();
+//        matrix.setTranslate(MainActivity.screenWidth/2, MainActivity.screenHeight/2);
+        float scale = (scaleWidth <= scaleHeight) ? scaleWidth : scaleHeight;
+        matrix.postScale(scale, scale);
+        matrix.setScale(scale, scale);
+
+        Bitmap resizedResult = Bitmap.createBitmap(result, 0, 0, width, height, matrix, true);
+
+        Log.d("Resolution", "resizedResult image: " + resizedResult.getWidth() + " x " + resizedResult.getHeight());
+
+        bmImage.setImageBitmap(resizedResult);
+//        matrix.reset();
+//        matrix.setTranslate(300, 0);
+//        bmImage.setImageMatrix(matrix);
         pb_horizontal.setVisibility(View.GONE);
     }
 
