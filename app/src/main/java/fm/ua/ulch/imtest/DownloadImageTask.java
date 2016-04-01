@@ -38,7 +38,7 @@ public class DownloadImageTask extends AsyncTask<String, Integer, Bitmap> {
     }
 
     protected void onPostExecute(Bitmap result) {
-        bmImage.setImageBitmap(result);
+//        bmImage.setImageBitmap(result);
         Log.d("Resolution", "image: " + result.getWidth() + " x " + result.getHeight());
         //        textView.setText(url);
 

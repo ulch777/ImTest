@@ -41,6 +41,7 @@ public class FirstFragment extends Fragment {
         ImageView img = (ImageView) view.findViewById(R.id.imageView);
         TextView textView = (TextView) view.findViewById(R.id.textView);
         ProgressBar pb_horizontal = (ProgressBar) view.findViewById(R.id.pb_horizontal);
+        pb_horizontal.setProgress(0);
 
 //        textView.setText("Page " + imgURL);
 
@@ -56,6 +57,8 @@ public class FirstFragment extends Fragment {
 //        matrix.setTranslate(MainActivity.screenWidth/2,MainActivity.screenHeight/2);
 //        img.setImageMatrix(matrix);
         img.setOnTouchListener(new ImageOnTouchListener());
+//        img.setScaleType(ImageView.ScaleType.CENTER);
+
 
         return view;
 

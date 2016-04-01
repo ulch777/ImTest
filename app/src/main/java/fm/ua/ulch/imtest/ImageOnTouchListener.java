@@ -2,12 +2,14 @@ package fm.ua.ulch.imtest;
 
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
 public class ImageOnTouchListener implements View.OnTouchListener {
     Matrix matrix = new Matrix();
+
     Matrix savedMatrix = new Matrix();
     PointF startPoint = new PointF();
     PointF midPoint = new PointF();
@@ -20,8 +22,9 @@ public class ImageOnTouchListener implements View.OnTouchListener {
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         ImageView view = (ImageView) v;
-
-        System.out.println("matrix=" + savedMatrix.toString());
+        Log.d("Resolution", "Viev height: " + v.getHeight());
+        Log.d("Resolution", "Viev width: " + v.getWidth());
+//        System.out.println("matrix=" + savedMatrix.toString());
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
 
@@ -29,6 +32,7 @@ public class ImageOnTouchListener implements View.OnTouchListener {
                 savedMatrix.set(matrix);
                 startPoint.set(event.getX(), event.getY());
                 mode = DRAG;
+                Log.d("Resolution", "MotionEvent.ACTION_DOWN");
                 break;
 
             case MotionEvent.ACTION_POINTER_DOWN:
@@ -37,25 +41,34 @@ public class ImageOnTouchListener implements View.OnTouchListener {
                     savedMatrix.set(matrix);
                     midPoint(midPoint, event);
                     mode = ZOOM;
+                    Log.d("Resolution", "MotionEvent.ACTION_POINTER_DOWN");
                 }
                 break;
 
             case MotionEvent.ACTION_UP:
-
+                Log.d("Resolution", "MotionEvent.ACTION_UP");
+                break;
             case MotionEvent.ACTION_POINTER_UP:
                 mode = NONE;
+                Log.d("Resolution", "MotionEvent.ACTION_POINTER_UP");
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 if (mode == DRAG) {
                     matrix.set(savedMatrix);
                     matrix.postTranslate(event.getX() - startPoint.x, event.getY() - startPoint.y);
+                    Log.d("Resolution", "MotionEvent.ACTION_MOVE-yyyyyyy");
+
                 } else if (mode == ZOOM) {
                     float newDist = spacing(event);
                     if (newDist > 10f) {
                         matrix.set(savedMatrix);
                         float scale = newDist / oldDist;
-                        matrix.postScale(scale, scale, midPoint.x, midPoint.y);
+//                        Log.d("Resolution", "MotionEvent.ACTION_MOVE-wwwww" + String.valueOf(matrix.));
+                        if(scale<1) {
+                            matrix.postScale(scale, scale, midPoint.x, midPoint.y);
+                            Log.d("Resolution", "MotionEvent.ACTION_MOVE-wwwww" + String.valueOf(scale));
+                        }
                     }
                 }
                 break;

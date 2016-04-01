@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             String url = "http://www.o-prirode.com/News/150/realnye-foto-" + i + ".jpg";
             urls.add(url);
         }
-        
+
         setupViewPager(pager,urls);
     }
 
