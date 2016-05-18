@@ -24,6 +24,7 @@ public class DownloadImageTask extends AsyncTask<String, Integer, Bitmap> {
     ImageView bmImage;
     String url;
     ProgressBar pb_horizontal;
+    Matrix matrix = new Matrix();
 
     public DownloadImageTask(String url, ImageView bmImage, TextView textView, ProgressBar pb_horizontal) {
         this.url = url;
@@ -38,30 +39,34 @@ public class DownloadImageTask extends AsyncTask<String, Integer, Bitmap> {
     }
 
     protected void onPostExecute(Bitmap result) {
-//        bmImage.setImageBitmap(result);
+//        imgMatrix.reset();
         Log.d("Resolution", "image: " + result.getWidth() + " x " + result.getHeight());
-        //        textView.setText(url);
 
         int width = result.getWidth();
         int height = result.getHeight();
+
         float scaleWidth = ((float) MainActivity.screenWidth) / width;
         float scaleHeight = ((float) MainActivity.screenHeight) / height;
-        Matrix matrix = new Matrix();
-//        matrix.reset();
-//        matrix.setTranslate(MainActivity.screenWidth/2, MainActivity.screenHeight/2);
+
+        matrix.reset();
+        matrix.setTranslate(MainActivity.screenWidth / 2, MainActivity.screenHeight / 2);
+
         float scale = (scaleWidth <= scaleHeight) ? scaleWidth : scaleHeight;
         matrix.postScale(scale, scale);
-        matrix.setScale(scale, scale);
 
         Bitmap resizedResult = Bitmap.createBitmap(result, 0, 0, width, height, matrix, true);
 
-        Log.d("Resolution", "resizedResult image: " + resizedResult.getWidth() + " x " + resizedResult.getHeight());
+        pb_horizontal.setVisibility(View.GONE);
+//
+//        float[] values = new float[9];
+//        imgMatrix.getValues(values);
+//        float globalX = values[Matrix.MTRANS_X];
+//        float globalY = values[Matrix.MTRANS_Y];
+//        float mwidth = values[Matrix.MSCALE_X] * resizedResult.getWidth();
+//        float mheight = values[Matrix.MSCALE_Y] * resizedResult.getHeight();
+//        Log.d("Resolution", "Matrix download: globalX: " + globalX + ", globalY: " + globalY + ", width: " + mwidth + ", height: " + mheight);
 
         bmImage.setImageBitmap(resizedResult);
-//        matrix.reset();
-//        matrix.setTranslate(300, 0);
-//        bmImage.setImageMatrix(matrix);
-        pb_horizontal.setVisibility(View.GONE);
     }
 
     @Override
@@ -76,6 +81,7 @@ public class DownloadImageTask extends AsyncTask<String, Integer, Bitmap> {
     @Override
     protected void onPreExecute() {
 //        super.onPreExecute();
+//        imgMatrix.reset();
         pb_horizontal.setVisibility(View.VISIBLE);
         pb_horizontal.setProgress(0);
 
@@ -99,15 +105,15 @@ public class DownloadImageTask extends AsyncTask<String, Integer, Bitmap> {
             while ((nRead = is.read(data, 0, data.length)) != -1) {
                 buffer.write(data, 0, nRead);
                 totalBytesRead += nRead;
-                double progress = (double)totalBytesRead/(double)fileLength*100;
-                publishProgress((int)progress);
+                double progress = (double) totalBytesRead / (double) fileLength * 100;
+                publishProgress((int) progress);
             }
             byte[] image = buffer.toByteArray();
             Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
             return bitmap;
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             try {
                 buffer.close();
                 is.close();

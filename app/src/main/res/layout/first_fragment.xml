@@ -11,14 +11,13 @@
         android:text="TextView"
         android:visibility="gone"/>
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:adjustViewBounds="true"
-            android:scaleType="matrix"
-            android:background="@android:color/darker_gray"/>
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:background="@android:color/darker_gray"
+        android:scaleType="fitCenter"/>
 
     <ProgressBar
         android:id="@+id/pb_horizontal"
@@ -30,5 +29,6 @@
         android:layout_marginRight="10dp"
         android:max="100"
         android:visibility="visible"/>
+
 
 </FrameLayout>
