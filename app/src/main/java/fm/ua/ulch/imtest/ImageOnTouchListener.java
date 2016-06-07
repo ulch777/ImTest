@@ -9,14 +9,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
-public class ImageOnTouchListener implements View.OnTouchListener {
+public class ImageOnTouchListener implements View.OnTouchListener/*, View.OnClickListener */{
     Matrix startMatrix = new Matrix();
     Matrix matrix = new Matrix();
-    Matrix imgMatrix = new Matrix();
-    Matrix newImgMatrix = new Matrix();
-
-//    Matrix matrix = DownloadImageTask.imgMatrix;
-
     Matrix savedMatrix = new Matrix();
     PointF startPoint = new PointF();
     PointF midPoint = new PointF();
@@ -25,8 +20,6 @@ public class ImageOnTouchListener implements View.OnTouchListener {
     static final int DRAG = 1;
     static final int ZOOM = 2;
     int mode = NONE;
-//    Bitmap mBitmap;
-//    Bitmap imgBitmap;
     int imHeight;
     int imWidth;
 
@@ -37,19 +30,50 @@ public class ImageOnTouchListener implements View.OnTouchListener {
     float width;
     float height;
 
+//    private static final long DOUBLE_CLICK_TIME_DELTA = 300;//milliseconds
+//    long lastClickTime = 0;
+
+    //    GestureDetector gD;
+//    GestureDetector gestureDetector;
+//    boolean tapped;
+
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        ImageView view = (ImageView) v;
+        final ImageView view = (ImageView) v;
         if (view.getScaleType() != ImageView.ScaleType.MATRIX) {
-            Bitmap mBitmap = ((BitmapDrawable) view.getDrawable()).getBitmap();
 
-            view.setScaleType(ImageView.ScaleType.MATRIX);
-            getStartMatrix(view);
-            matrix.set(startMatrix);
-            imWidth = mBitmap.getWidth();
-            imHeight = mBitmap.getHeight();
-//            matrix.postTranslate((float) (MainActivity.screenWidth - mBitmap.getWidth()) / 2, (float) (MainActivity.screenHeight - mBitmap.getHeight()) / 2);
-            view.setImageMatrix(matrix);
+            try {
+                Bitmap mBitmap = ((BitmapDrawable) view.getDrawable()).getBitmap();
+                view.setScaleType(ImageView.ScaleType.MATRIX);
+                getStartMatrix(view);
+                matrix.set(startMatrix);
+                imWidth = mBitmap.getWidth();
+                imHeight = mBitmap.getHeight();
+                view.setImageMatrix(matrix);
+            } catch (Exception e) {
+                Log.d("Exeption", "No downloaded image", e);
+            }
+//            gD = new GestureDetector(new GestureDetector.SimpleOnGestureListener(){
+//                @Override
+//                public boolean onDoubleTap(MotionEvent e){
+//
+//                    return true;
+//                }
+//            });
+//            view.setOnClickListener(new onDoubleClickListener() {
+//                @Override
+//                public void onSingleClick(View v) {
+//
+//                }
+//
+//                @Override
+//                public void onDoubleClick(View v) {
+//                    matrix.set(startMatrix);
+//                    view.setImageMatrix(matrix);
+//                    MainActivity.rlIndicstor.setVisibility(View.VISIBLE);
+//                }
+//            });
         }
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -75,8 +99,9 @@ public class ImageOnTouchListener implements View.OnTouchListener {
                         Log.d("Resolution", "MotionEvent.ACTION_POINTER_DOWN");
                         getMatrixValues(matrix);
                     }
-//                else {matrix.set(startMatrix);}
-                }else {matrix.set(startMatrix);}
+                } else {
+                    matrix.set(startMatrix);
+                }
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -85,6 +110,13 @@ public class ImageOnTouchListener implements View.OnTouchListener {
                 }
                 Log.d("Resolution", "MotionEvent.ACTION_UP");
                 getMatrixValues(matrix);
+                if (getScaleX(matrix) <= 1 || getScaleY(matrix) <= 1) {
+                    MainActivity.rlIndicstor.setVisibility(View.VISIBLE);
+                } else {
+                    if (getScaleX(matrix) > 1 || getScaleY(matrix) > 1) {
+                        MainActivity.rlIndicstor.setVisibility(View.GONE);
+                    }
+                }
                 break;
 
             case MotionEvent.ACTION_POINTER_UP:
@@ -95,17 +127,20 @@ public class ImageOnTouchListener implements View.OnTouchListener {
 
             case MotionEvent.ACTION_MOVE:
                 if (mode == DRAG) {
-//                    if (getScaleX(matrix) > 1 || getScaleY(matrix) > 1) {
                     matrix.set(savedMatrix);
                     matrix.postTranslate(event.getX() - startPoint.x, event.getY() - startPoint.y);
 
                     Log.d("Resolution", "MotionEvent.ACTION_MOVE-yyyyyyy");
+
                     getMatrixValues(matrix);
-//                    }
 
                 } else if (mode == ZOOM) {
-//                    if (getScaleX(matrix) >= 1 || getScaleY(matrix) >= 1) {
-                    float newDist = spacing(event);
+                    float newDist = 0;
+                    try {
+                        newDist = spacing(event);
+                    } catch (Exception e) {
+                        Log.d("Exeption", "Zooming + pagechanging", e);
+                    }
                     if (newDist > 10f) {
                         if (getScaleX(matrix) >= 1 && getScaleY(matrix) >= 1) {
                             matrix.set(savedMatrix);
@@ -113,9 +148,10 @@ public class ImageOnTouchListener implements View.OnTouchListener {
                             matrix.postScale(scale, scale, midPoint.x, midPoint.y);
                             Log.d("Resolution", "MotionEvent.ACTION_MOVE-wwwww" + String.valueOf(scale));
                             getMatrixValues(matrix);
-                        } else {matrix.set(startMatrix);}
+                        } else {
+                            matrix.set(startMatrix);
+                        }
                     }
-//                    }else {matrix.set(startMatrix);}
                 }
                 break;
         }
@@ -134,8 +170,11 @@ public class ImageOnTouchListener implements View.OnTouchListener {
 
         view.setImageMatrix(matrix);
 //        view.setImageBitmap(mBitmap);
+
         return true;
+//        return gestureDetector.onTouchEvent(event);
     }
+
 
     private float spacing(MotionEvent event) {
         float x = event.getX(0) - event.getX(1);
@@ -179,4 +218,50 @@ public class ImageOnTouchListener implements View.OnTouchListener {
         height = values[Matrix.MSCALE_Y] * imHeight;
         Log.d("Resolution", "StartMatrix: globalX: " + globalX + ", globalY: " + globalY + ", width: " + width + ", height: " + height);
     }
+
+//    @Override
+//    public void onClick(View v) {
+//        long clickTime = System.currentTimeMillis();
+//        if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
+//            onDoubleClick(v);
+//        } else {
+//            onSingleClick(v);
+//        }
+//        lastClickTime = clickTime;
+//    }
+//
+//    private void onDoubleClick(View v) {
+//        Toast.makeText(v.getContext(), "onDoubleClick", Toast.LENGTH_SHORT).show();
+//        Log.d("onDoubleClick", "onDoubleClick");
+//    }
+//    private void onSingleClick(View v) {
+//        Toast.makeText(v.getContext(), "onSingleClick", Toast.LENGTH_SHORT).show();
+//
+//    }
+//    private abstract class onDoubleClickListener implements View.OnClickListener {
+//
+//        private static final long DOUBLE_CLICK_TIME_DELTA = 300;//milliseconds
+//
+//        long lastClickTime = 0;
+//
+//        @Override
+//        public void onClick(View v) {
+//            long clickTime = System.currentTimeMillis();
+//            if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
+//                onDoubleClick(v);
+//            } else {
+//                onSingleClick(v);
+//            }
+//            lastClickTime = clickTime;
+//        }
+//
+//        public abstract void onSingleClick(View v);
+//
+//        public abstract void onDoubleClick(View v);
+////            ImageView view = (ImageView) v;
+////            matrix.set(startMatrix);
+////            view.setImageMatrix(matrix);
+////            MainActivity.rlIndicstor.setVisibility(View.VISIBLE);
+//
+//    }
 }

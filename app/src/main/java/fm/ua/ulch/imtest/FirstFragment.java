@@ -2,12 +2,14 @@ package fm.ua.ulch.imtest;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class FirstFragment extends Fragment {
 
@@ -59,8 +61,41 @@ public class FirstFragment extends Fragment {
         img.setOnTouchListener(new ImageOnTouchListener());
 //        img.setScaleType(ImageView.ScaleType.CENTER);
 
+        img.setOnClickListener(new onDoubleClickListener());
+
 
         return view;
 
+    }
+
+    private class onDoubleClickListener implements View.OnClickListener {
+//
+        private static final long DOUBLE_CLICK_TIME_DELTA = 300;//milliseconds
+
+        long lastClickTime = 0;
+
+        @Override
+        public void onClick(View v) {
+            long clickTime = System.currentTimeMillis();
+            if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
+                onDoubleClick(v);
+            } else {
+                onSingleClick(v);
+            }
+            lastClickTime = clickTime;
+        }
+
+        public void onSingleClick(View v){
+            Toast.makeText(v.getContext(), "onSingleClick", Toast.LENGTH_SHORT).show();
+        }
+
+        public void onDoubleClick(View v) {
+            Toast.makeText(v.getContext(), "onDoubleClick", Toast.LENGTH_SHORT).show();
+            Log.d("onDoubleClick", "onDoubleClick");
+//            ImageView view = (ImageView) v;
+//            matrix.set(startMatrix);
+//            view.setImageMatrix(matrix);
+//            MainActivity.rlIndicstor.setVisibility(View.VISIBLE);
+        }
     }
 }

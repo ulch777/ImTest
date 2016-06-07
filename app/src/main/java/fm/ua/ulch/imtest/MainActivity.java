@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +28,12 @@ public class MainActivity extends AppCompatActivity {
     WindowManager w;
     ImageView ball;
     ImageView indicator;
+    static RelativeLayout rlIndicstor;
     Animation translateAnimation;
-    int pos = 0;
+    int pos;
     int deltaX = 0;
     int prevDeltaX = 0;
-    int pagePos;
+//    int pagePos;
 
 
     //    PagerAdapter pagerAdapter;
@@ -42,10 +44,18 @@ public class MainActivity extends AppCompatActivity {
 
         ball = (ImageView) findViewById(R.id.ball);
         indicator = (ImageView) findViewById(R.id.indicator);
+        rlIndicstor = (RelativeLayout) findViewById(R.id.rlIndicator);
 //        int indWidth = indicator.getLayoutParams().width;
         final int indWidth = indicator.getDrawable().getMinimumWidth();
         final int ballWidth = ball.getDrawable().getMinimumWidth();
         Log.d("Resolution", "indicator: " + indWidth);
+
+//        if (savedInstanceState != null) {
+//            pos = savedInstanceState.getInt("pos");
+//            int trans = (indWidth - ballWidth / 2) / (urls.size()+1) * pos;
+//            ball.setTranslationX(trans);
+//        }
+//        Log.d("Position", "onCreate pos = " + pos);
 //        int indWidth1 = indicator.getDrawable().getIntrinsicHeight();
 //        Log.d("Resolution", "indicator1: " + indWidth1);
 
@@ -53,7 +63,10 @@ public class MainActivity extends AppCompatActivity {
 //        anim = AnimationUtils.loadAnimation(this, R.anim.trans);
 //        ball.startAnimation(anim);
 
-//        ball.setTranslationX(deltaX);
+//        if (pos != 0){
+//            int trans = (indWidth - ballWidth / 2) / (urls.size()+1) * pos;
+//            ball.setTranslationX(trans);
+//        }
 
         w = getWindowManager();
         metrics = new DisplayMetrics();
@@ -69,6 +82,14 @@ public class MainActivity extends AppCompatActivity {
             String url = "http://www.o-prirode.com/News/150/realnye-foto-" + i + ".jpg";
             urls.add(url);
         }
+
+        if (savedInstanceState != null) {
+            pos = savedInstanceState.getInt("pos");
+            int trans = (indWidth - ballWidth / 2) / (urls.size() + 1) * pos;
+            ball.setTranslationX(trans);
+        }
+        Log.d("Position", "onCreate pos = " + pos);
+
         pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -77,44 +98,31 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-//                int deltaX = 0;
-//                int prevDeltaX = 0;
+
+                Log.d("Position", "position = " + position + ", pos = " + pos);
                 int animSign = 1;
 
                 if (pos < position) {
-                    deltaX += (indWidth - ballWidth / 2) / (urls.size()+1);
-//                    animSign = 1/(urls.size());
+                    deltaX += (indWidth - ballWidth / 2) / (urls.size() + 1);
+                    animSign = 1;
 
                 } else if (pos > position) {
-                    deltaX += -(indWidth - ballWidth / 2) / (urls.size()+1);
+                    deltaX += -(indWidth - ballWidth / 2) / (urls.size() + 1);
                     animSign = -1;
 
                 }
 
 
-
                 translateAnimation = new TranslateAnimation(
-                        Animation.ABSOLUTE,  prevDeltaX,
-//                        animSign *
+                        Animation.ABSOLUTE, prevDeltaX,
                         animSign * Animation.ABSOLUTE, deltaX,
-//                        Animation.RELATIVE_TO_SELF, animDelta,
-//                        Animation.RELATIVE_TO_PARENT, animDelta,
                         0, 0,
                         0, 0
                 );
                 translateAnimation.setDuration(1000);
                 translateAnimation.setFillAfter(true);
 
-
-
                 ball.startAnimation(translateAnimation);
-//                ball.setTranslationX(deltaX);
-
-                Log.d("Position", "position: " + position);
-                Log.d("Position", "pos: " + pos);
-                Log.d("Position", "deltaX: " + deltaX);
-                Log.d("Position", "urls.size(): " + urls.size());
-                Log.d("Position", "1/(urls.size(): " + (float) 1/(urls.size()));
 
                 pos = position;
                 prevDeltaX = deltaX;
@@ -129,6 +137,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupViewPager(pager, urls);
+        
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("pos", pos);
+        Log.d("Position", "onSaveInstanceState pos = " + pos);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        pos = savedInstanceState.getInt("pos");
+        Log.d("Position", "onRestoreInstanceState pos = " + pos);
     }
 
     private void setupViewPager(ViewPager viewPager, ArrayList<String> list) {
